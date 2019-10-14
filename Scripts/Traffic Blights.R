@@ -1,32 +1,18 @@
-#x <- c(1,6,10,16)
-#r <- c(2,2,2,3)
-#g <- c(3,3,3,4)
-#x <- c(4,9,13,21,30,2019)
-#r <- c(1,8,3,5,9,20)
-#g <- c(5,7,5,7,1,0)
-#x <- c(2980,8694,42193)
-#r <- c(2,19,21)
-#g <- c(1,9,2)
-#df <- data.frame(x,r,g)
-
-file_name <- "sample-1.in"#"secret-31-all_red_n500_p100.in"
+file_name <- "secret-31-all_red_n500_p100.in"
 dirname(rstudioapi::getSourceEditorContext()$path)
 file_path <- dirname(rstudioapi::getSourceEditorContext()$path)
 data_path <- paste0(substr(file_path,0,nchar(file_path)-7),"K-trafficblights/")
 df <- read.delim(paste0(data_path,file_name),sep = " ", header = FALSE,col.names = c("x","r","g"))
 df <- df[2:nrow(df),]
+df$p <- df$r + df$g
 
 
 # Program to find the L.C.M. of two input number
-lcm <- function(x, y) {
+lcm <- function(x) {
   # choose the greater number
-  if(x > y) {
-    greater = x
-  } else {
-    greater = y
-  }
+  greater <- max(x)
   while(TRUE) {
-    if((greater %% x == 0) && (greater %% y == 0)) {
+    if( sum(greater %% x == 0) == length(x)) {
       lcm = greater
       break
     }
@@ -35,6 +21,14 @@ lcm <- function(x, y) {
   return(lcm)
 }
 
+gcd <- function(x, y) {
+  while(y) {
+    temp = y
+    y = x %% y
+    x = temp
+  }
+  return(x)
+}
 
 semaforo <- function(r,g,t){
   p <- r+g
@@ -59,23 +53,37 @@ t_espera <- function(r,g,t){
   return(output)
 }
 
-T <- 2520
-x <- c(0,1,2,5,6,7,8,9)
-y <- x *0
-color_semaforo <- matrix(nrow = T, ncol = nrow(df))
-for(i in 1:length(x)){
-  y[i] <- max(t_llegada(df,x[i])) - x[i]
-  color_semaforo[i,] <- semaforo(df$r,df$g,t_llegada(df,x[i]))
-}
-color_semaforo <- as.data.frame(color_semaforo)
+X <- 2520#lcm(df$p)
+df$p_reduced <-0
 
+#probability approach
+for (i in 1:nrow(df)) {
+  df$p_reduced[i] <-  df$p[i] / gcd(X,df$p[i])
+}
+
+T_f <- max(df$p_reduced)
+
+color_semaforo <- matrix(nrow = T_f, ncol = nrow(df))
+#color_semaforo <- data.frame()
+
+subproblem_sol <- matrix(nrow = X, ncol = nrow(df)+1)
 source(paste0(file_path,"/output_final.R"))
 
-output_final(color_semaforo,T)
+for (i in  0:(X-1)){
+  x <- (0:(T_f-1))*X + i
+  #color_semaforo[i,] <- semaforo(df$r,df$g,t_llegada(df,i))
+  for(j in x){
+    color_semaforo[which(x==j),] <- semaforo(df$r,df$g,t_llegada(df,j))
+  }
+  subproblem_sol[i+1,] <- output_final(color_semaforo,T_f)
+  if(i%%1000 == 0){
+    print(paste("Voy en el caso",i))
+  }
+}
 
-plot(x,y, xlab = "Tiempo Inicial de partida", ylab = "Tiempo de llegada")
-summary(y)
+color_semaforo <- as.data.frame(color_semaforo)
+subproblem_sol <- as.data.frame(subproblem_sol)
 
-t_i <- 7
-t_llegada(df,t_i) - t_i
-semaforo(df$r,df$g,t_llegada(df,9))
+problema_sol <- apply(subproblem_sol, 2, function(x) {sum(x)/X })
+
+write.table(problema_sol,paste0(data_path,"output.txt"), sep = "\n", row.names = FALSE, col.names = FALSE)
