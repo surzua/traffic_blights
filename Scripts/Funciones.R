@@ -1,6 +1,5 @@
 ####LCM Y GCD ####
 
-
 lcm <- function(x) {
   # Funcion para encontrar el minimo comun multiplo de un vector de números
   greater <- max(x)
