@@ -30,4 +30,4 @@ for (i in  0:(X-1)){
 subproblem_sol <- as.data.frame(subproblem_sol)
 problema_sol <- apply(subproblem_sol, 2, function(x) {sum(x)/X })
 
-write.table(problema_sol,paste0(data_path,"output-",substr(file_name,1,nchar(file_name)-3),".txt"), sep = "\n", row.names = FALSE, col.names = FALSE)
+write.table(problema_sol,paste0(output_path,"output-",gsub("\\..*","", file_name),".txt"), sep = "\n", row.names = FALSE, col.names = FALSE)
