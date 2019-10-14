@@ -1,5 +1,8 @@
 # traffic_blights
-El objetivo es estudiar la probabilidad de que un auto sea capaz de cruzar todos los semáforos de una calle en verde
+El objetivo es Resolver el problema K del concurso ICPC 2019, "Traffic Blights".
+El problema consiste en una distribución de semáforos situado a lo largo de una calle, cada uno con distintos periodos de luces verde y rojo. Un automóvil comienza a recorrer desde el principio de la calle desde cualquier instante (la variable *tiempo de partido* distribuye uniforme). Se deben resolver dos tareas:
+a) Determinar la probabilidad de que cada semáforo sea el primero con que el automóvil se topa con luz roja
+b) Determinar la probabilidad de que el automóvil pase todos los semáforos con luz verde.
 
 # Manual de Uso
 Para ejecutar esta solución se requiere tener instalado R, junto con paquete "rstudioapi"
